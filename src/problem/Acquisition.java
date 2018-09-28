@@ -1,7 +1,7 @@
 package problem;
 
 /**
- * Class used for representing acquisition 
+ * Class for representing acquisition 
  * (both acquisitions already recorded onboard and candidate acquisitions) 
  * @author cpralet
  *
