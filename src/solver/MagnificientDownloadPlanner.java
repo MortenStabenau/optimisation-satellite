@@ -28,7 +28,7 @@ import problem.User;
  * Class implementing a download planner which tries to insert downloads into the plan
  * by ordering acquisitions following an increasing order of their realization time, and by
  * considering download windows chronologically 
- * @author cpralet
+ * @author Liz Ramos, Morten Stabenau
  *
  */
 public class MagnificientDownloadPlanner {
@@ -43,9 +43,24 @@ public class MagnificientDownloadPlanner {
 		PlanningProblem pb = plan.pb;
 		
 		// Write user shares
-		
 		writer.write("UserShare=[");
 		if(!pb.users.isEmpty()){
+			// "" + is for type conversion :-D
+			writer.write("" + pb.users.get(0).quota);
+			for(int i=1; i < pb.users.size(); i++) {
+				writer.write("," + pb.users.get(i).quota);
+			}
+		}
+		writer.write("];");
+		
+		// Make a list of all acquisitions
+		List<Acquisition> acqlist = new ArrayList<Acquisition>();
+		acqlist.addAll(plan.plannedAcquisitions);
+		acqlist.addAll(pb.recordedAcquisitions);
+		
+		// Write AcquisitionVolumes
+		writer.write("AcquisitionVolumes=[");
+		if(!plan.plannedAcquisitions.isEmpty()){
 			// "" + is for type conversion :-D
 			writer.write("" + pb.users.get(0).quota);
 			for(int i=1; i < pb.users.size(); i++) {
@@ -58,8 +73,7 @@ public class MagnificientDownloadPlanner {
 		writer.flush();
 		writer.close();	
 	}
-
-	
+		
 	public static void main(String[] args) throws XMLStreamException, FactoryConfigurationError, IOException, ParseException{
 		ProblemParserXML parser = new ProblemParserXML(); 
 		PlanningProblem pb = parser.read(Params.systemDataFile,Params.planningDataFile);
