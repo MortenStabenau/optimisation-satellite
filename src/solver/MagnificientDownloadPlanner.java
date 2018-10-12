@@ -42,12 +42,6 @@ public class MagnificientDownloadPlanner {
 
 		PlanningProblem pb = plan.pb;
 
-		// Write user shares
-		writer.write("Nusers = " + pb.users.size() + ";\n");
-		writeModelParameter(writer, pb.users, "UserShare",
-				(Object a) -> Double.toString(((User) a).quota));
-		writer.write("\n");
-
 		// Make a list of all acquisitions, filtered for our current sat
 		List<Acquisition> acqlist = new ArrayList<Acquisition>();
 		acqlist.addAll(plan.plannedAcquisitions);
@@ -63,6 +57,9 @@ public class MagnificientDownloadPlanner {
 		}
 		acqlist = acqlist2;
 
+        // Write download speed
+        writer.write("DownloadSpeed = " + Params.downlinkRate + "\n");
+
 		// Write the number of acquisitions
 		writer.write("Nacquisitions = " + acqlist.size() + ";\n");
 
@@ -75,8 +72,8 @@ public class MagnificientDownloadPlanner {
 				(Object a) -> Integer.toString(((Acquisition) a).priority));
 
 		// Write AcquisitionUser
-		writeModelParameter(writer, acqlist, "AcquisitionUser",
-				(Object a) -> ((Acquisition) a).user.name);
+		writeModelParameter(writer, acqlist, "AcquisitionUserShare",
+				(Object a) -> Double.toString(((Acquisition) a).user.quota));
 
 		// Write time finished
 		writeModelParameter(writer, acqlist, "AcquisitionEndTime",
@@ -144,6 +141,9 @@ public class MagnificientDownloadPlanner {
 	}
 
 	public static void main(String[] args) throws XMLStreamException, FactoryConfigurationError, IOException, ParseException{
+        System.out.print("Starting Magnificient Download Planner... ");
+
+
 		ProblemParserXML parser = new ProblemParserXML();
 		PlanningProblem pb = parser.read(Params.systemDataFile,Params.planningDataFile);
 		SolutionPlan plan = new SolutionPlan(pb);
@@ -153,6 +153,7 @@ public class MagnificientDownloadPlanner {
 		for (Satellite sat : pb.satellites) {
 			writeDatFile(plan, "output/download_data_" + sat.name + ".dat", sat);
 		}
+        System.out.println("done!");
 	}
 
 }
