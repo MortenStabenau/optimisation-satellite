@@ -10,7 +10,6 @@ java -cp bin solver.BadAcquisitionPlanner
 
 # Run acquisition optimisation
 if hash oplrun 2>/dev/null; then
-    export LD_LIBRARY_PATH=~/apps/cplex/opl/bin/x86-64_linux/
     OPL=oplrun
 else
     module load ilog/12.7
