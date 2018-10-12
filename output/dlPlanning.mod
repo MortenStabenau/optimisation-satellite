@@ -16,18 +16,6 @@ float DownloadWindowEnd[DownloadWindows] = ...;
 
 float DownloadSpeed = ...;
 
-/** Index of the acquisition in the list of candidate acquisitions of the problem */
-int CandidateAcquisitionIdx[AcquisitionWindows] = ...;
-/** Index of the acquisition window in the list of windows associated with the same candidate acquisition */
-int AcquisitionWindowIdx[AcquisitionWindows] = ...;
-
-/** Earliest start time associated with each acquisition window */
-float EarliestStartTime[AcquisitionWindows] = ...;
-/** Latest start time associated with each acquisition window */
-float LatestStartTime[AcquisitionWindows] = ...;
-/** Acquisition duration associated with each acquisition window */
-float Duration[AcquisitionWindows] = ...;
-
 /** Required transition time between each pair of successive acquisitions windows */
 float TransitionTimes[AcquisitionWindows][AcquisitionWindows] = ...;
 
@@ -35,21 +23,21 @@ float TransitionTimes[AcquisitionWindows][AcquisitionWindows] = ...;
 string OutputFile = ...;
 
 /** Boolean variable indicating whether an acquisition window is selected */
-dvar int selectDownloads[DownloadWindows] in 0..1;
+dvar int selectDownloads[Acquisitions] in 0..1;
 /** next[a1][a2] = 1 when a1 is the selected acquisition window that follows a2 */
-dvar int next[DownloadWindows][DownloadWindows] in 0..1;
+dvar int next[Acquisitions][Acquisitions] in 0..1;
 /** Acquisition start time in each acquisition window */
-dvar float startTime[a in DownloadWindows] in AcquisitionEndTime[a]..;
+dvar float startTime[a in Acquisitions] in AcquisitionEndTime[a]..inf;
 /** Selected download window, zero means no window is selected */
-dvar SelectedDownloadWindow in 0..NdownloadWindows;
-dexpr Duration[a in DownloadWindows]=AcquisitionVolumes[a] / DownloadSpeed;
+dvar int SelectedDownloadWindow[Acquisitions] in 0..NdownloadWindows;
+dexpr float Duration[a in DownloadWindows]=AcquisitionVolumes[a] / DownloadSpeed;
 
 execute{
 	cplex.tilim = 60; // 60 seconds
 }
 
 // maximize the number of acquisition windows selected
-maximize sum(a in AcquisitionWindows) selectDownloads[a] *
+maximize sum(a in Acquisitions) selectDownloads[a] *
     AcquisitionPriority[a] * AcquisitionUserShare[a] * AcquisitionVolumes[a];
 
 constraints {
