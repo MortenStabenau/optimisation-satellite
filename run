@@ -1,0 +1,18 @@
+#!/bin/bash
+# Compile java files
+find src -name '*.java' -not -name 'PlanViewer.java' > sources.txt
+javac @sources.txt
+rm sources.txt
+
+# Run acquisition planner
+echo "Running acquisition planner"
+java -cp bin solver.BadAcquisitionPlanner
+
+# Run acquisition optimisation
+cd output
+module load ilog/12.7
+OPL=/usr/local/ilog-12.7/opl/bin/x86-64_linux/oplrun
+
+$OPL acqPlanning.mod acqPlanning_SAT1.dat
+$OPL acqPlanning.mod acqPlanning_SAT2.dat
+cd ..
