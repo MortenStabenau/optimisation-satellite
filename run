@@ -24,4 +24,5 @@ $OPL acqPlanning.mod acqPlanning_SAT1.dat
 $OPL acqPlanning.mod acqPlanning_SAT2.dat
 cd ..
 
-java -cp bin solver.MagnificentDownloadPlanner
+echo "-------- Running acquition planner ------"
+java -cp bin solver.MagnificientDownloadPlanner

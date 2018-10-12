@@ -27,32 +27,32 @@ import problem.User;
 /**
  * Class implementing a download planner which tries to insert downloads into the plan
  * by ordering acquisitions following an increasing order of their realization time, and by
- * considering download windows chronologically 
+ * considering download windows chronologically
  * @author Liz Ramos, Morten Stabenau
  *
  */
 public class MagnificientDownloadPlanner {
 
-	
+
 	public static void writeDatFile(SolutionPlan plan, String datFilename, Satellite sat)
 			throws IOException{
 		// generate OPL data (only for the satellite selected)
 		PrintWriter writer = new PrintWriter(new BufferedWriter(
 				new FileWriter(datFilename, false)));
-		
+
 		PlanningProblem pb = plan.pb;
-		
+
 		// Write user shares
 		writer.write("Nusers = " + pb.users.size() + ";\n");
 		writeModelParameter(writer, pb.users, "UserShare",
 				(Object a) -> Double.toString(((User) a).quota));
 		writer.write("\n");
-		
+
 		// Make a list of all acquisitions, filtered for our current sat
 		List<Acquisition> acqlist = new ArrayList<Acquisition>();
 		acqlist.addAll(plan.plannedAcquisitions);
 		acqlist.addAll(pb.recordedAcquisitions);
-		
+
 		// Remove all acquisition for other satellites
 		List<Acquisition> acqlist2 = new ArrayList<Acquisition>();
 		for(int i = 0; i < acqlist.size(); i++) {
@@ -62,26 +62,26 @@ public class MagnificientDownloadPlanner {
 			}
 		}
 		acqlist = acqlist2;
-		
+
 		// Write the number of acquisitions
 		writer.write("Nacquisitions = " + acqlist.size() + ";\n");
-		
+
 		// Write AcquisitionVolumes
 		writeModelParameter(writer, acqlist, "AcquisitionVolumes",
 				(Object a) -> Long.toString(((Acquisition) a).getVolume()));
-		
+
 		// Write priorities
 		writeModelParameter(writer, acqlist, "AcquisitionPriority",
 				(Object a) -> Integer.toString(((Acquisition) a).priority));
-		
+
 		// Write AcquisitionUser
 		writeModelParameter(writer, acqlist, "AcquisitionUser",
 				(Object a) -> ((Acquisition) a).user.name);
-		
+
 		// Write time finished
 		writeModelParameter(writer, acqlist, "AcquisitionEndTime",
 				(Object a) -> Double.toString(((Acquisition) a).getAcquisitionTime()));
-		
+
 		// Write ids
 		writeModelParameter(writer, acqlist, "AcquisitionIds",
 				(Object a) -> {
@@ -93,11 +93,11 @@ public class MagnificientDownloadPlanner {
 					}
 				});
 		writer.write("\n");
-		
+
 		// Write download windows
 		List<DownloadWindow> ldw = pb.downloadWindows;
 		List<DownloadWindow> ldw2 = new ArrayList<DownloadWindow>();
-		
+
 		for(int i = 0; i < ldw.size(); i++) {
 			DownloadWindow w = ldw.get(i);
 			if(ldw.get(i).satellite.name.equals(sat.name)) {
@@ -105,29 +105,29 @@ public class MagnificientDownloadPlanner {
 			}
 		}
 		ldw = ldw2;
-		
+
 		// Write windows
 		writer.write("NdownloadWindows = " + ldw.size() + ";\n");
 		writeModelParameter(writer, ldw, "DownloadWindowId",
 				(Object a) -> Integer.toString(((DownloadWindow) a).idx));
-		
+
 		writeModelParameter(writer, ldw, "DownloadWindowStart",
 				(Object a) -> Double.toString(((DownloadWindow) a).start));
-		
+
 		writeModelParameter(writer, ldw, "DownloadWindowEnd",
 				(Object a) -> Double.toString(((DownloadWindow) a).end));
-		
+
 		writer.write("\nOutputFile = \"solutionDlPlan_" + sat.name + ".txt\";");
-		
+
 		// close the writer
 		writer.flush();
-		writer.close();	
+		writer.close();
 	}
-	
+
 	// Write a single model parameter
 	public static void writeModelParameter(PrintWriter writer, List l,
 			String name, getterFunction getParameter) throws IOException {
-		
+
 		writer.write(name + "=[");
 		if(!l.isEmpty()){
 			// "" + is for type conversion :-D
@@ -138,21 +138,21 @@ public class MagnificientDownloadPlanner {
 		}
 		writer.write("];\n");
 	}
-	
+
 	public interface getterFunction{
 		public String f(Object o);
 	}
-		
+
 	public static void main(String[] args) throws XMLStreamException, FactoryConfigurationError, IOException, ParseException{
-		ProblemParserXML parser = new ProblemParserXML(); 
+		ProblemParserXML parser = new ProblemParserXML();
 		PlanningProblem pb = parser.read(Params.systemDataFile,Params.planningDataFile);
 		SolutionPlan plan = new SolutionPlan(pb);
 		plan.readAcquisitionPlan("output/solutionAcqPlan_SAT1.txt");
 		plan.readAcquisitionPlan("output/solutionAcqPlan_SAT2.txt");
-		
+
 		for (Satellite sat : pb.satellites) {
 			writeDatFile(plan, "output/download_data_" + sat.name + ".dat", sat);
-		}		
+		}
 	}
-	
+
 }
