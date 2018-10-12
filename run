@@ -5,14 +5,23 @@ javac @sources.txt
 rm sources.txt
 
 # Run acquisition planner
-echo "Running acquisition planner"
+echo "-------- Running acquition planner ------"
 java -cp bin solver.BadAcquisitionPlanner
 
 # Run acquisition optimisation
-cd output
-module load ilog/12.7
-OPL=/usr/local/ilog-12.7/opl/bin/x86-64_linux/oplrun
+if hash oplrun 2>/dev/null; then
+    export LD_LIBRARY_PATH=~/apps/cplex/opl/bin/x86-64_linux/
+    OPL=oplrun
+else
+    module load ilog/12.7
+    OPL=/usr/local/ilog-12.7/opl/bin/x86-64_linux/oplrun
+fi
 
+# Run acq optimisation
+echo "-------- Running acquition optimisation ------"
+cd output
 $OPL acqPlanning.mod acqPlanning_SAT1.dat
 $OPL acqPlanning.mod acqPlanning_SAT2.dat
 cd ..
+
+java -cp bin solver.MagnificentDownloadPlanner
