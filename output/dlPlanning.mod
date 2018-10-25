@@ -32,7 +32,7 @@ dvar float DlTime[Acquisitions];
 dexpr float Duration[a in DownloadWindows]=AcquisitionVolumes[a] / DownloadSpeed;
 
 execute{
-	cplex.tilim = 60; // 60 seconds
+    cplex.tilim = 60; // 60 seconds
 }
 
 // maximize the number of acquisition windows selected
@@ -41,27 +41,27 @@ maximize sum(a in Acquisitions) selectDownloads[a] *
 
 constraints {
 
-	
-	 forall(i in Acquisitions){
-	 	// Acquisitions can't be split in two DownloadWindows
-	 	sum(j in DownloadWindows) AcqDlWindow[i][j] == 1;
-	 	
-	 	forall(j in DownloadWindows) {
-	 		// Acquition has to be within the window (Big M notation)
-	 		// DlTime[i] >= DownloadWindowStart[j] if download is within the window
-	 		DlTime[i] >= (DownloadWindowStart[j]*AcqDlWindow[i][j]);
-	 		// DlTime[i] + Duration[i] <= DownloadWindowEnd[j]
-	 		(DlTime[i] + Duration[i])* AcqDlWindow[i][j] <= DownloadWindowEnd[j];	 	
-	 	}
-	 }
-	 	
+
+     forall(i in Acquisitions){
+         // Acquisitions can't be split in two DownloadWindows
+         sum(j in DownloadWindows) AcqDlWindow[i][j] == 1;
+
+         forall(j in DownloadWindows) {
+             // Acquition has to be within the window (Big M notation)
+             // DlTime[i] >= DownloadWindowStart[j] if download is within the window
+             DlTime[i] >= (DownloadWindowStart[j]*AcqDlWindow[i][j]);
+             // DlTime[i] + Duration[i] <= DownloadWindowEnd[j]
+             (DlTime[i] + Duration[i])* AcqDlWindow[i][j] <= DownloadWindowEnd[j];
+         }
+     }
+
 }
 
 execute {
-	var ofile = new IloOplOutputFile(OutputFile);
-	for(var i=1; i <= DownloadWindows; i++) {
-		if(selectDownloads[i] == 1){
-			ofile.writeln(AcquisitionIds[i] + " " + SelectedDownloadWindow[i] + " " + startTime[i] + " " + (startTime[i]+Duration[i]));
-		}
-	}
+    var ofile = new IloOplOutputFile(OutputFile);
+    for(var i=1; i <= DownloadWindows; i++) {
+        if(selectDownloads[i] == 1){
+            ofile.writeln(AcquisitionIds[i] + " " + SelectedDownloadWindow[i] + " " + startTime[i] + " " + (startTime[i]+Duration[i]));
+        }
+    }
 }
