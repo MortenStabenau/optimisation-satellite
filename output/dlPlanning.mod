@@ -70,8 +70,9 @@ constraints {
                 sum(b in Acquisitions) DlTime[b];
         }
 
-        // Acquisitions can't follow itself
+        // Acquisitions can't follow itself or two acquisitions at a time
         next[a][a] == 0;
+        sum(b in Acquisitions) next[a][b] <= 1;
 
         // Acquisitions must be followed by another acquisition (except for the
         // last one)
