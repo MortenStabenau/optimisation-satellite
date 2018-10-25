@@ -52,7 +52,7 @@ dvar int next[AcquisitionWindowsPlusZero][AcquisitionWindowsPlusZero] in 0..1;
 dvar float+ startTime[a in AcquisitionWindows] in EarliestStartTime[a]..LatestStartTime[a];
 
 execute{
-	cplex.tilim = 60*30; // 60 seconds
+	cplex.tilim = 60; // 60 seconds
 }
 
 // weights (somme = 1)
