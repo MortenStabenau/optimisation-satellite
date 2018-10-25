@@ -72,21 +72,22 @@ constraints {
         // Acquisitions must be followed by another acquisition (except for the
         // last one)
         sum(b in Acquisitions) next[b][a] == AcqTaken[a] - last[a];
-        
+
          // There is only one last acquisition
     	sum(a in Acquisitions) last[a] == 1;
 
    		 // Download of an acquisition can't start unless it has been taken
    	 	DlTime[a] >= AcquisitionEndTime[a];
     }
-   
+
 }
 
 execute {
     var ofile = new IloOplOutputFile(OutputFile);
     for(var a=1; a <= Nacquisitions ; a++) {
         if(AcqTaken[a] == 1){
-         ofile.writeln(AcquisitionIds[a] + " " + DownloadWindowId[d] + " " + DlTime[a] + " " + (DlTime[a]+Duration[a]));           
+            ofile.writeln(AcquisitionIds[a] + " " + DownloadWindowId[d] + " " +
+                DlTime[a] + " " + (DlTime[a]+Duration[a]));
         }
     }
 }
