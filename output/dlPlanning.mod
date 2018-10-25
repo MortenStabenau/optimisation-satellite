@@ -1,6 +1,7 @@
 /** Acquisition parameters */
 int Nacquisitions = ...;
 range Acquisitions = 1..Nacquisitions;
+
 float AcquisitionVolumes[Acquisitions] = ...;
 int AcquisitionPriority[Acquisitions] = ...;
 int AcquisitionUserShare[Acquisitions] = ...;
@@ -34,7 +35,7 @@ dvar int next[Acquisitions][Acquisitions] in 0..1;
 dvar int last[Acquisitions] in 0..1;
 
 dexpr float Duration[a in Acquisitions]=AcquisitionVolumes[a] / DownloadSpeed;
-dexpr int AcqTaken=sum(d in DownloadWindows) AcqDlWindow[a][d];
+dexpr int AcqTaken[a in Acquisitions]= sum(d in DownloadWindows) AcqDlWindow[a][d];
 
 execute{
     cplex.tilim = 60; // 60 seconds
@@ -63,28 +64,29 @@ constraints {
         }
 
         // Acquisitions can't overlap
-        DlTime(a) + Duration(a) <= sum(b in Acquisitions) dlTime(b) *next(a, b)
+        DlTime[a] + Duration[a] <= sum(b in Acquisitions) DlTime[b]*next[a][b];
 
         // Acquisitions can't follow itself
         next[a][a] == 0;
 
         // Acquisitions must be followed by another acquisition (except for the
         // last one)
-        sum(b in Acquisitions) next(b, a) == AcqTaken(a) - last(a);
-    }
-    // There is only one last acquisition
-    sum(a in Acquisitions) last(a) == 1;
+        sum(b in Acquisitions) next[b][a] == AcqTaken[a] - last[a];
+        
+         // There is only one last acquisition
+    	sum(a in Acquisitions) last[a] == 1;
 
-    // Download of an acquisition can't start unless it has been taken
-    dlTime(a) >= AcquisitionEndTime(a);
+   		 // Download of an acquisition can't start unless it has been taken
+   	 	DlTime[a] >= AcquisitionEndTime[a];
+    }
+   
 }
 
 execute {
     var ofile = new IloOplOutputFile(OutputFile);
     for(var a=1; a <= Nacquisitions ; a++) {
-        if((sum(d in DownloadWindows) AcqDlWindow[i][d]) == 1){
-            ofile.writeln(AcquisitionIds[a] + " " + DownloadWindowId[d] +
-                " " + DlTime[a] + " " + (DlTime[a]+Duration[a]));
+        if(AcqTaken[a] == 1){
+         ofile.writeln(AcquisitionIds[a] + " " + DownloadWindowId[d] + " " + DlTime[a] + " " + (DlTime[a]+Duration[a]));           
         }
     }
 }
