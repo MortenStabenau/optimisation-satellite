@@ -14,30 +14,24 @@ bin/%.class: src/%.java
 	rm sources.txt
 
 # Java acquisition planner
-output/acqPlanning_SAT1.dat: bin/solver/$(JP)DownloadPlanner.class
+output/acqPlanning_SAT%.dat: bin/solver/$(JP)AcquisitionPlanner.class
 	java -cp bin solver.$(JP)AcquisitionPlanner
 
 # Acquisition optimisation
-output/solutionAcqPlan_SAT1.txt: output/acqPlanning_SAT1.dat output/$(MP)Planning.mod
-	cd output; $(OPL) $(MP)Planning.mod ../$<
-
-output/solutionAcqPlan_SAT2.txt: output/acqPlanning_SAT1.dat output/$(MP)Planning.mod
+output/solutionAcqPlan_SAT%.txt: output/acqPlanning_SAT%.dat output/$(MP)Planning.mod
 	cd output; $(OPL) $(MP)Planning.mod ../$<
 
 # MagnificientDownloadPlanner
-output/download_data_SAT1.dat: output/solutionAcqPlan_SAT1.txt output/solutionAcqPlan_SAT2.txt bin/solver/MagnificientDownloadPlanner.class
+output/download_data_SAT%.dat: output/solutionAcqPlan_SAT%.txt bin/solver/MagnificientDownloadPlanner.class
 	java -cp bin solver.MagnificientDownloadPlanner
 
 # Download optimisation
-output/solutionDlPlan_SAT1.txt: output/download_data_SAT1.dat output/dlPlanning.mod
-	cd output; $(OPL) dlPlanning.mod download_data_SAT1.dat
-
-output/solutionDlPlan_SAT2.txt: output/download_data_SAT2.dat output/dlPlanning.mod
-	cd output; $(OPL) dlPlanning.mod download_data_SAT2.dat
+output/solutionDlPlan_SAT%.txt: output/download_data_SAT%.dat output/dlPlanning.mod
+	cd output; $(OPL) dlPlanning.mod ../$<
 
 output/downloadPlan.txt: output/solutionDlPlan_SAT1.txt output/solutionDlPlan_SAT2.txt
 	cat output/solutionDlPlan_SAT*.txt > output/downloadPlan.txt
 
 # Cleanup
 clean:
-	rm -rf output/*.txt output/download_data_SAT* output/acqPlanning* bin/*
+	rm -rf output/*.txt output/download_data_SAT* output/acqPlanning_SAT* bin/*
