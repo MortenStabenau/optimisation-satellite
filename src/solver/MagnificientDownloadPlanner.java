@@ -58,7 +58,7 @@ public class MagnificientDownloadPlanner {
 		acqlist = acqlist2;
 
         // Write download speed
-        writer.write("DownloadSpeed = " + Params.downlinkRate + "\n");
+        writer.write("DownloadSpeed = " + Params.downlinkRate + ";\n");
 
 		// Write the number of acquisitions
 		writer.write("Nacquisitions = " + acqlist.size() + ";\n");
@@ -82,12 +82,14 @@ public class MagnificientDownloadPlanner {
 		// Write ids
 		writeModelParameter(writer, acqlist, "AcquisitionIds",
 				(Object a) -> {
+                    String s;
 					if (a instanceof CandidateAcquisition) {
-						return "CAND " + Integer.toString(((CandidateAcquisition) a).idx);
+						s = "CAND " + Integer.toString(((CandidateAcquisition) a).idx);
 					}
 					else {
-						return "REC " + Integer.toString(((RecordedAcquisition) a).idx);
+						s = "REC " + Integer.toString(((RecordedAcquisition) a).idx);
 					}
+                    return '"' + s + '"';
 				});
 		writer.write("\n");
 

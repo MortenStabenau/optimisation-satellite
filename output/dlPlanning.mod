@@ -4,7 +4,7 @@ range Acquisitions = 1..Nacquisitions;
 
 float AcquisitionVolumes[Acquisitions] = ...;
 int AcquisitionPriority[Acquisitions] = ...;
-int AcquisitionUserShare[Acquisitions] = ...;
+float AcquisitionUserShare[Acquisitions] = ...;
 float AcquisitionEndTime[Acquisitions] = ...;
 string AcquisitionIds[Acquisitions] = ...;
 
@@ -56,15 +56,19 @@ constraints {
         forall(d in DownloadWindows) {
             // Acquition has to be within the window (Big M notation)
             // DlTime[a] >= DownloadWindowStart[d] if download is within the
-            // window
-            DlTime[a] >= (DownloadWindowStart[d]*AcqDlWindow[a][d]);
+            // window. Check beginning of window:
+            DlTime[a] >= DownloadWindowStart[d]*AcqDlWindow[a][d];
 
-            // DlTime[a] + Duration[a] <= DownloadWindowEnd[d]
-            (DlTime[a] + Duration[a])* AcqDlWindow[a][d] <= DownloadWindowEnd[d];
+            // Check end of window:
+            AcqDlWindow[a][d] == 1 => DlTime[a] + Duration[a] <=
+                DownloadWindowEnd[d];
         }
 
         // Acquisitions can't overlap
-        DlTime[a] + Duration[a] <= sum(b in Acquisitions) DlTime[b]*next[a][b];
+        forall(b in Acquisitions){
+            next[a][b] == 1 => DlTime[a] + Duration[a] <=
+                sum(b in Acquisitions) DlTime[b];
+        }
 
         // Acquisitions can't follow itself
         next[a][a] == 0;
@@ -85,9 +89,11 @@ constraints {
 execute {
     var ofile = new IloOplOutputFile(OutputFile);
     for(var a=1; a <= Nacquisitions ; a++) {
-        if(AcqTaken[a] == 1){
-            ofile.writeln(AcquisitionIds[a] + " " + DownloadWindowId[d] + " " +
-                DlTime[a] + " " + (DlTime[a]+Duration[a]));
+        for(var d=1; d <= NdownloadWindows; d++) {
+            if(AcqDlWindow[a][d] == 1){
+                ofile.writeln(AcquisitionIds[a] + " " + DownloadWindowId[d] +
+                    " " + DlTime[a] + " " + (DlTime[a]+Duration[a]));
+            }
         }
     }
 }
