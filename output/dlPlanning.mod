@@ -48,19 +48,19 @@ maximize sum(a in Acquisitions) sum(d in DownloadWindows) AcqDlWindow[a][d] *
     AcquisitionPriority[a] * AcquisitionUserShare[a] * AcquisitionVolumes[a];
 
 constraints {
-     forall(a in Acquisitions){
-         // Acquisitions can't be split in two DownloadWindows
-         sum(d in DownloadWindows) AcqDlWindow[a][d] <= 1;
+    forall(a in Acquisitions){
+        // Acquisitions can't be split in two DownloadWindows
+        sum(d in DownloadWindows) AcqDlWindow[a][d] <= 1;
 
-         forall(d in DownloadWindows) {
-             // Acquition has to be within the window (Big M notation)
-             // DlTime[a] >= DownloadWindowStart[d] if download is within the
-             // window
-             DlTime[a] >= (DownloadWindowStart[d]*AcqDlWindow[a][d]);
+        forall(d in DownloadWindows) {
+            // Acquition has to be within the window (Big M notation)
+            // DlTime[a] >= DownloadWindowStart[d] if download is within the
+            // window
+            DlTime[a] >= (DownloadWindowStart[d]*AcqDlWindow[a][d]);
 
-             // DlTime[a] + Duration[a] <= DownloadWindowEnd[d]
-             (DlTime[a] + Duration[a])* AcqDlWindow[a][d] <= DownloadWindowEnd[d];
-         }
+            // DlTime[a] + Duration[a] <= DownloadWindowEnd[d]
+            (DlTime[a] + Duration[a])* AcqDlWindow[a][d] <= DownloadWindowEnd[d];
+        }
 
         // Acquisitions can't overlap
         DlTime(a) + Duration(a) <= sum(b in Acquisitions) dlTime(b) *next(a, b)
@@ -71,7 +71,6 @@ constraints {
         // Acquisitions must be followed by another acquisition (except for the
         // last one)
         sum(b in Acquisitions) next(b, a) == AcqTaken(a) - last(a);
-
     }
     // There is only one last acquisition
     sum(a in Acquisitions) last(a) == 1;
