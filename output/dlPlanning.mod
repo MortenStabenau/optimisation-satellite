@@ -46,7 +46,7 @@ execute{
     AcquisitionPriority[a] * AcquisitionUserShare[a] * AcquisitionVolumes[a];
 */
 maximize sum(a in Acquisitions) sum(d in DownloadWindows) AcqDlWindow[a][d] *
-    AcquisitionPriority[a] * AcquisitionUserShare[a] * AcquisitionVolumes[a];
+    (2-AcquisitionPriority[a]) * AcquisitionUserShare[a] * AcquisitionVolumes[a];
 
 constraints {
     forall(a in Acquisitions){
