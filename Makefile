@@ -32,7 +32,7 @@ output/solutionDlPlan_SAT%.txt: output/download_data_SAT%.dat output/dlPlanning.
 output/downloadPlan.txt: output/solutionDlPlan_SAT1.txt output/solutionDlPlan_SAT2.txt
 	cat output/solutionDlPlan_SAT*.txt > output/downloadPlan.txt
 
-view:
+view: all
 	java -cp lib/jcommon-1.0.23.jar:lib/jfreechart-1.0.19.jar:bin solver.PlanViewer
 
 # Cleanup

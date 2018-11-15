@@ -36,15 +36,13 @@ dvar int last[Acquisitions] in 0..1;
 
 dexpr float Duration[a in Acquisitions]=AcquisitionVolumes[a] / DownloadSpeed;
 dexpr int AcqTaken[a in Acquisitions]= sum(d in DownloadWindows) AcqDlWindow[a][d];
+dexpr int ntaken = sum(a in Acquisitions) AcqTaken[a];
 
 execute{
     cplex.tilim = 60; // 60 seconds
 }
 
 // maximize the "importance" of the downloaded windows
-/*maximize sum(a in Acquisitions) selectDownloads[a] *
-    AcquisitionPriority[a] * AcquisitionUserShare[a] * AcquisitionVolumes[a];
-*/
 maximize sum(a in Acquisitions) sum(d in DownloadWindows) AcqDlWindow[a][d] *
     (2-AcquisitionPriority[a]) * AcquisitionUserShare[a] * AcquisitionVolumes[a];
 
@@ -95,4 +93,5 @@ execute {
             }
         }
     }
+    writeln("Downloaded " + ntaken + " / " + Nacquisitions);
 }
